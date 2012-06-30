@@ -19,7 +19,7 @@ Usage:              https://wiki.vtiger.com/index.php/Webservices_tutorials
                     vtws = require('node-vtiger')
                     VT_URL = 'http://example.com/vtigercrm'
                     VT_USER = 'admin'
-                    VT_ACCESSKEY = 'rFtfsdRfTgUggY'  # you can find accessky in yout vtiger user preferences
+                    VT_ACCESSKEY = 'rFtfsdRfTgUggY' # accesskey is in your vtiger user preferences
                     client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug')
                     client.doLogin(callback)
                     client.doQuery(query, callback)
@@ -27,14 +27,12 @@ Usage:              https://wiki.vtiger.com/index.php/Webservices_tutorials
                     client.doRetrieve(id, callback)
                     client.doUpdate(valuemap, callback)
                     client.doCreate(valuemap, callback)
-                    client.doInvoke(callback, method, params)
+                    client.doInvoke(callback, method, params) # not tested
 ###
 
 crypto  = require 'crypto'
 sys     = require 'util'
 request = require 'request'
-
-
 
 class NodeVtigerWS
 
@@ -59,7 +57,6 @@ class NodeVtigerWS
         @log            = new logger( prefix: "node-vtiger")
         
         @log.debug "Vtiger_WSClient constructor"
-        
         
     # check if the response from vtigerws has an error "success":false
     # store the error in _lastError
@@ -328,6 +325,7 @@ class NodeVtigerWS
                 @__processResponse(e, r, body)
                 
     # difference with vtwscli: POST only
+    # not tested
     doInvoke: (callback, method, params) ->
         @log "doInvoke"
         params = {} if not params?

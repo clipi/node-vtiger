@@ -1,7 +1,7 @@
 (function() {
   var VT_ACCESSKEY, VT_LEAD_TEST_ID, VT_LEAD_TEST_NO, VT_URL, VT_USER, client, doCreateTest, doDeleteTest, doDescribeTest, doQueryTest, doRetreiveTest, doUpdateTest, endTest, log, logger, nbErrors, vt_lead_test, vtws;
 
-  vtws = require('../lib/nodevtiger.js');
+  vtws = require('node-vtiger');
 
   logger = require('basic-logger');
 

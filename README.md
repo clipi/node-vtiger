@@ -1,4 +1,4 @@
-# node-vtiger -- Vtiger API Connection Library for Node.js Applications
+# Vtiger API Connection Library for Node.js Applications
 
 ## Abstract
 
@@ -19,15 +19,39 @@ or
 </pre>
 
 
-## Usage 
-
-everything is in test/main.coffee
+## Test
 
 <pre>
-  test/main.js url username accesskey
-  test/main.js http://example.com/vtigercrm admin vHgFdsrFrdRdfR
+    test/main.js url username accesskey
+    test/main.js http://example.com/vtigercrm admin vHgFdsrFrdRdfR
 </pre>
 
+## Usage
+
+<pre>
+    vtws = require('node-vtiger')
+    VT_URL = 'http://example.com/vtigercrm'
+    VT_USER = 'admin'
+    VT_ACCESSKEY = 'rFtfsdRfTgUggY' # accesskey is in your vtiger user preferences
+    client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug')
+    client.doLogin(callback)
+    client.doQuery(query, callback)
+    client.doDescribe(module, callnack)
+    client.doRetrieve(id, callback)
+    client.doUpdate(valuemap, callback)
+    client.doCreate(valuemap, callback)
+    client.doInvoke(callback, method, params) # not tested
+</pre>
+
+## Acknowledgement
+
+http://forge.vtiger.com/projects/vtwsclib/
+http://vtiger.com
+http://nodejs.org
+http://coffeescript.org
+https://github.com/mikeal/request/
+http://expressjs.com
+https://github.com/drd0rk/logger
 
 ## Licence
 

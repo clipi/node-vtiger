@@ -5,7 +5,7 @@
 #
 # You can find the accesskey in vtiger user "my preferences"
 
-vtws        = require('../lib/nodevtiger.js')
+vtws        = require('node-vtiger')
 logger      = require 'basic-logger'
 logger.setLevel 'debug'
 

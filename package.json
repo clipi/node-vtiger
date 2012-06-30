@@ -1,0 +1,26 @@
+{
+    "name": "node-vtiger",
+    "version": "0.2.0",
+    "description": "Vtiger API Connection Library for Node.js Applications.",
+    "keywords": [ "vtiger", "webservice" ],
+    "homepage": "http://github.com/clipi/node-vtiger",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/clipi/node-vtiger.git"
+    },
+    "contributors": [ 
+        {
+        "name": "marco parronchi",
+        "email": "marco.parronchi@tiwee.net"
+        } 
+    ],
+    "main": "./lib/nodevtiger.js",
+    "scripts": {
+        "test": "test/*.js"
+    },
+    "dependencies": {
+            "crypto": ""
+        ,   "request": ""
+        ,   "basic-logger": ""
+    }
+}

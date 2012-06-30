@@ -195,7 +195,8 @@ class NodeVtigerWS
     doQuery: (query, callback) ->
         @log.debug 'doQuery: ' + query
         @__callback = callback
-        if not @__checkLogin() @__performCallback(@__callback, false)
+        if not @__checkLogin()
+            @__performCallback(@__callback, false)
         else
             query += ";" if query.indexOf(";") is -1
             params = '?operation=query&sessionName=' + @_wsSessionName + '&query=' + escape(query)
@@ -208,7 +209,8 @@ class NodeVtigerWS
     doDescribe: (module, callback) ->
         @log.debug 'doDescribe ' + module
         @__callback = callback
-        if not @__checkLogin() @__performCallback(@__callback, false)
+        if not @__checkLogin()
+            @__performCallback(@__callback, false)
         else
             params = '?operation=describe&sessionName=' + @_wsSessionName + '&elementType=' + module
             @log.debug @_wsUrl + params
@@ -220,7 +222,8 @@ class NodeVtigerWS
     doRetrieve: (id, callback) ->
         @log.debug 'doRetrieve: ' + id
         @__callback = callback
-        if not @__checkLogin() @__performCallback(@__callback, false)
+        if not @__checkLogin()
+            @__performCallback(@__callback, false)
         else
             params = '?operation=retrieve&sessionName=' + @_wsSessionName + '&id=' + id
             @log.debug @_wsUrl + params
@@ -231,7 +234,8 @@ class NodeVtigerWS
     doSync: (modifiedTime, module, callback) ->
         @log.debug 'doSync: ' + modifiedTime + ' ' + module
         @__callback = callback
-        if not @__checkLogin() @__performCallback(@__callback, false)
+        if not @__checkLogin()
+            @__performCallback(@__callback, false)
         else
             params = '?operation=sync&sessionName=' + @_wsSessionName + '&modifiedTime=' + modifiedTime
             params += '&elementType=' + module if module
@@ -244,7 +248,8 @@ class NodeVtigerWS
     doDelete: (id, callback) ->
         @log.debug 'doDelete: ' + id
         @__callback = callback
-        if not @__checkLogin() @__performCallback(@__callback, false)
+        if not @__checkLogin()
+            @__performCallback(@__callback, false)
         else
             request.post
                 url: @_wsUrl
@@ -279,7 +284,8 @@ class NodeVtigerWS
         @log.debug "doUpdate"
         return if not valuemap?
         @__callback = callback
-        if not @__checkLogin() @__performCallback(@__callback, false)
+        if not @__checkLogin()
+            @__performCallback(@__callback, false)
         else
             request.post
                 url: @_wsUrl
@@ -296,7 +302,8 @@ class NodeVtigerWS
     doCreate: (module, valuemap, callback) ->
         @log.debug "doCreate: module=" + module 
         @__callback = callback
-        if not @__checkLogin() @__performCallback(@__callback, false)
+        if not @__checkLogin()
+            @__performCallback(@__callback, false)
         else
             valuemap.assigned_user_id = @_wsUserId  unless valuemap.assigned_user_id?
             request.post

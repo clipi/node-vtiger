@@ -21,6 +21,8 @@ I use it for a robot witch is doing automated task
 
 ## Usage
 
+VTiger webservice API: https://wiki.vtiger.com/index.php/Webservices_tutorials<br />
+
 <pre>
     vtws = require('node-vtiger')
     VT_URL = 'http://example.com/vtigercrm'

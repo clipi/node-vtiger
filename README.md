@@ -52,7 +52,7 @@ http://expressjs.com <br />
 https://github.com/drd0rk/logger <br />
 
 ## License
-<center>
+
 Public Domain & copyleft: http://www.nolicense.org<br />
 <i>The software is provided "as is", without warranty of any kind.</i>
-</center>
+

@@ -11,12 +11,6 @@
     prefix: "test"
   });
 
-  VT_URL = '';
-
-  VT_USER = '';
-
-  VT_ACCESSKEY = '';
-
   TEST_MODIFIED_TIME = '1340208309';
 
   if (process.argv.length !== 5) {
@@ -62,7 +56,6 @@
         return nbErrors += 1;
       } else {
         log.debug(JSON.stringify(result, null, 4));
-        log.debug('________________________________');
         vt_lead_test = result;
         return doUpdateTest();
       }
@@ -98,7 +91,6 @@
         return nbErrors += 1;
       } else {
         log.debug(JSON.stringify(result, null, 4));
-        log.debug('________________________________');
         return doRetreiveTest();
       }
     });
@@ -114,7 +106,6 @@
         return nbErrors += 1;
       } else {
         log.debug(JSON.stringify(result, null, 4));
-        log.debug('________________________________');
         return doDeleteTest();
       }
     });
@@ -130,7 +121,6 @@
         return nbErrors += 1;
       } else {
         log.debug(JSON.stringify(result, null, 4));
-        log.debug('________________________________');
         return doDescribeTest();
       }
     });

@@ -5,16 +5,15 @@
 #
 # You can find the accesskey in vtiger user "my preferences"
 
+# local invocation, usually
+# vtws = require 'node-vtiger'
 vtws        = require '../lib/nodevtiger.js'
+
 logger      = require 'basic-logger'
 logger.setLevel 'debug'
 
 log = new logger( prefix: "test")
 
-
-VT_URL              = ''
-VT_USER             = ''
-VT_ACCESSKEY        = ''
 TEST_MODIFIED_TIME  = '1340208309' # timestamp 2012-06-20
 
 if process.argv.length isnt 5
@@ -55,7 +54,6 @@ doCreateTest = () ->
             nbErrors += 1
         else
             log.debug JSON.stringify(result, null, 4)
-            log.debug '________________________________'
             vt_lead_test = result
             doUpdateTest()
     )
@@ -86,7 +84,6 @@ doQueryTest =  ->
             nbErrors += 1
         else
             log.debug JSON.stringify(result, null, 4)
-            log.debug '________________________________'
             doRetreiveTest()
     )
 
@@ -100,7 +97,6 @@ doRetreiveTest = ->
             nbErrors += 1
         else
             log.debug JSON.stringify(result, null, 4)
-            log.debug '________________________________'
             doDeleteTest()
     )
 
@@ -114,10 +110,8 @@ doDeleteTest = ->
             nbErrors += 1
         else
             log.debug JSON.stringify(result, null, 4)
-            log.debug '________________________________'
             doDescribeTest()
     )
-
 
 doDescribeTest = ->
     log.debug('\n############################## test doDescribe')

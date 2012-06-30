@@ -1,33 +1,10 @@
-###
-                    Node Vtiger WebService
+###                 Node Vtiger WebService
                 
 Description:        Node vtiger webservice client library
-Version:            0.2.2012-06-28
 Contributor:        marco.parronchi@tiwee.net
 License:            public domain: http://www.nolicense.org/
 
-Acknowledgement:    http://forge.vtiger.com/projects/vtwsclib/
-                    http://vtiger.com
-                    http://nodejs.org
-                    http://coffeescript.org
-                    https://github.com/mikeal/request/
-                    http://expressjs.com
-                    https://github.com/drd0rk/logger
-                    
-Usage:              https://wiki.vtiger.com/index.php/Webservices_tutorials
-
-                    vtws = require('node-vtiger')
-                    VT_URL = 'http://example.com/vtigercrm'
-                    VT_USER = 'admin'
-                    VT_ACCESSKEY = 'rFtfsdRfTgUggY' # accesskey is in your vtiger user preferences
-                    client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug')
-                    client.doLogin(callback)
-                    client.doQuery(query, callback)
-                    client.doDescribe(module, callnack)
-                    client.doRetrieve(id, callback)
-                    client.doUpdate(valuemap, callback)
-                    client.doCreate(valuemap, callback)
-                    client.doSync(modifiedTime, module, callback)
+                    infos in README.md
 ###
 
 crypto  = require 'crypto'
@@ -213,6 +190,7 @@ class NodeVtigerWS
 
         return @_isLogged
     
+    # Webservices provides custom subset of SQL support to work with vtiger CRM.
     # query = " SELECT * FROM Leads WHERE lead_no = 'CIB883' "
     doQuery: (query, callback) ->
         @log.debug 'doQuery: ' + query
@@ -226,7 +204,8 @@ class NodeVtigerWS
             request @_wsUrl + params , (e, r, body) =>
                 @__processResponse(e, r, body)
     
-    # return details of a module as map
+    # Information about fields of the module, permission to create, delete, update records
+    # of the module can be obtained.
     doDescribe: (module, callback) ->
         @log.debug 'doDescribe ' + module
         
@@ -237,7 +216,8 @@ class NodeVtigerWS
         request @_wsUrl + params , (e, r, body) =>
             @__processResponse(e, r, body)
     
-    # retreive a record by his id ( in the form <moduleid>'x'<recordid> )
+    # Retrieve information of existing record of the module.
+    # id must be in the foorm <moduleid>'x'<recordid>
     doRetrieve: (id, callback) ->
         @log.debug 'doRetrieve: ' + id
         
@@ -261,7 +241,8 @@ class NodeVtigerWS
         request @_wsUrl + params , (e, r, body) =>
             @__processResponse(e, r, body)
 
-    # delete a record by his id ( in the form <moduleid>'x'<recordid> )
+    # Delete a record
+    # id ( in the form <moduleid>'x'<recordid> )
     doDelete: (id, callback) ->
         @log.debug 'doDelete: ' + id
         
@@ -296,8 +277,7 @@ class NodeVtigerWS
 
             @__performCallback(@__callback, result)
 
-
-    # update a record
+    # Update a record
     doUpdate: (valuemap, callback) ->
         @log.debug "doUpdate"
         return if not valuemap?
@@ -316,7 +296,7 @@ class NodeVtigerWS
             , (e, r, body) =>
                 @__processResponse(e, r, body)
     
-    # create a record
+    # Create a record, a moduleName must be provided
     doCreate: (module, valuemap, callback) ->
         @log.debug "doCreate: module=" + module 
         @__callback = callback

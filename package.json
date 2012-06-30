@@ -1,6 +1,6 @@
 {
     "name": "node-vtiger",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "description": "Vtiger API Connection Library for Node.js Applications.",
     "keywords": [ "vtiger", "webservice" ],
     "homepage": "http://github.com/clipi/node-vtiger",

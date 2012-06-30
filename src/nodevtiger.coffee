@@ -27,7 +27,7 @@ Usage:              https://wiki.vtiger.com/index.php/Webservices_tutorials
                     client.doRetrieve(id, callback)
                     client.doUpdate(valuemap, callback)
                     client.doCreate(valuemap, callback)
-                    client.doInvoke(callback, method, params) # not tested
+                    client.doSync(modifiedTime, module, callback)
 ###
 
 crypto  = require 'crypto'
@@ -333,29 +333,6 @@ class NodeVtigerWS
                     sessionName: @_wsSessionName
                     elementType: module
                     element: JSON.stringify(valuemap)
-
-            , (e, r, body) =>
-                @__processResponse(e, r, body)
-                
-    # difference with vtwscli: POST only
-    # not tested
-    doInvoke: (callback, method, params) ->
-        @log "doInvoke"
-        params = {} if not params?
-        postdata =
-            operation: method
-            sessionName: @_wsSessionName
-
-        postdata[key] = params[key] for key of params when not (sendata[key]?)
-
-        @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
-        else
-            request.post
-                url: @_wsUrl
-                headers: @_default_headers
-                form: postdata
 
             , (e, r, body) =>
                 @__processResponse(e, r, body)

@@ -2,8 +2,8 @@
 
 ## Abstract
 
-Node-vtiger, written in CoffeeScript, is a wrapper of Vtiger REST API in Node.js.
-I use it for a robot witch is doing automated task
+Node-vtiger, written in CoffeeScript, is a wrapper of Vtiger REST API in Node.js.<br />
+I use it for a robot (node) which is doing automated tasks.
 
 ## Install
 
@@ -13,6 +13,9 @@ I use it for a robot witch is doing automated task
 
 
 ## Test
+
+The best way to learn how to use the module.<br />
+The test is tranparent, it creates a lead, update, query, and delete it.<br />
 
 <pre>
     test/main.js url username accesskey
@@ -36,7 +39,6 @@ VTiger webservice API: https://wiki.vtiger.com/index.php/Webservices_tutorials<b
     client.doUpdate(valuemap, callback)
     client.doCreate(valuemap, callback)
     client.doSync(modifiedTime, module, callback)
-    client.doInvoke(callback, method, params) # not tested
 </pre>
 
 ## Acknowledgement
@@ -49,6 +51,7 @@ https://github.com/mikeal/request/ <br />
 http://expressjs.com <br />
 https://github.com/drd0rk/logger <br />
 
-## Licence
+## License
 
-public domain: http://www.nolicense.org
+public domain: http://www.nolicense.org<br />
+<i>The software is provided "as is", without warranty of any kind.</i>

@@ -1,10 +1,10 @@
-###                 Node Vtiger WebService
+###                 NodeVtiger
                 
 Description:        Node vtiger webservice client library
 Contributor:        marco.parronchi@tiwee.net
 License:            public domain: http://www.nolicense.org/
 
-                    infos in README.md
+                    infos in /README.md
 ###
 
 crypto  = require 'crypto'
@@ -28,9 +28,9 @@ class NodeVtigerWS
             "Accept-Charset":   "utf-8"
                 
         @__callback     = false
+        
         logger  = require 'basic-logger'
         logger.setLevel level
-        
         @log            = new logger( prefix: "node-vtiger")
         
         @log.debug "Vtiger_WSClient constructor"
@@ -195,8 +195,7 @@ class NodeVtigerWS
     doQuery: (query, callback) ->
         @log.debug 'doQuery: ' + query
         @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
+        if not @__checkLogin() @__performCallback(@__callback, false)
         else
             query += ";" if query.indexOf(";") is -1
             params = '?operation=query&sessionName=' + @_wsSessionName + '&query=' + escape(query)
@@ -208,82 +207,79 @@ class NodeVtigerWS
     # of the module can be obtained.
     doDescribe: (module, callback) ->
         @log.debug 'doDescribe ' + module
-        
-        return if not @__checkLogin()
         @__callback = callback
-        
-        params = '?operation=describe&sessionName=' + @_wsSessionName + '&elementType=' + module
-        request @_wsUrl + params , (e, r, body) =>
-            @__processResponse(e, r, body)
+        if not @__checkLogin() @__performCallback(@__callback, false)
+        else
+            params = '?operation=describe&sessionName=' + @_wsSessionName + '&elementType=' + module
+            @log.debug @_wsUrl + params
+            request @_wsUrl + params , (e, r, body) =>
+                @__processResponse(e, r, body)
     
     # Retrieve information of existing record of the module.
     # id must be in the foorm <moduleid>'x'<recordid>
     doRetrieve: (id, callback) ->
         @log.debug 'doRetrieve: ' + id
-        
-        return if not @__checkLogin()
         @__callback = callback
-        
-        params = '?operation=retrieve&sessionName=' + @_wsSessionName + '&id=' + id
-        request @_wsUrl + params , (e, r, body) =>
-            @__processResponse(e, r, body)
+        if not @__checkLogin() @__performCallback(@__callback, false)
+        else
+            params = '?operation=retrieve&sessionName=' + @_wsSessionName + '&id=' + id
+            @log.debug @_wsUrl + params
+            request @_wsUrl + params , (e, r, body) =>
+                @__processResponse(e, r, body)
             
     # Sync will return a SyncResult object containing details of changes after modifiedTime.
     doSync: (modifiedTime, module, callback) ->
         @log.debug 'doSync: ' + modifiedTime + ' ' + module
-        
-        return if not @__checkLogin()
         @__callback = callback
-        
-        params = '?operation=sync&sessionName=' + @_wsSessionName + '&modifiedTime=' + modifiedTime
-        params += '&elementType=' + module if module
-        
-        request @_wsUrl + params , (e, r, body) =>
-            @__processResponse(e, r, body)
+        if not @__checkLogin() @__performCallback(@__callback, false)
+        else
+            params = '?operation=sync&sessionName=' + @_wsSessionName + '&modifiedTime=' + modifiedTime
+            params += '&elementType=' + module if module
+            @log.debug @_wsUrl + params
+            request @_wsUrl + params , (e, r, body) =>
+                @__processResponse(e, r, body)
 
     # Delete a record
     # id ( in the form <moduleid>'x'<recordid> )
     doDelete: (id, callback) ->
         @log.debug 'doDelete: ' + id
-        
-        return if not @__checkLogin()
         @__callback = callback
+        if not @__checkLogin() @__performCallback(@__callback, false)
+        else
+            request.post
+                url: @_wsUrl
+                headers: @_default_headers
+                form:
+                    operation: "delete"
+                    id: id
+                    sessionName: @_wsSessionName
+            , (e, r, body) =>
+                result = false
+                if e
+                    @log.error "request -> error: #{ JSON.stringify(error) }"
+                    @_lastError = 
+                        "error":
+                            "code":     "ERROR_ON_REQUEST"
+                            "message":  "Error on request (post)"
 
-        request.post
-            url: @_wsUrl
-            headers: @_default_headers
-            form:
-                operation: "delete"
-                id: id
-                sessionName: @_wsSessionName
-        , (e, r, body) =>
-            result = false
-            if e
-                @log.error "request -> error: #{ JSON.stringify(error) }"
-                @_lastError = 
-                    "error":
-                        "code":     "ERROR_ON_REQUEST"
-                        "message":  "Error on request (post)"
+                else if r.statusCode isnt 200
+                    @log.error "response.statusCode is #{ r.statusCode }"
+                    @_lastError = 
+                        "error":
+                            "code":     "ERROR_REQUEST_STATUS_CODE"
+                            "message":  "Error on request, statusCode = #{ r.statusCode }"
+                else
+                    resobj = JSON.parse(body)  
+                    result = resobj.result if @__hasError(resobj) is false
 
-            else if r.statusCode isnt 200
-                @log.error "response.statusCode is #{ r.statusCode }"
-                @_lastError = 
-                    "error":
-                        "code":     "ERROR_REQUEST_STATUS_CODE"
-                        "message":  "Error on request, statusCode = #{ r.statusCode }"
-            else
-                resobj = JSON.parse(body)  
-                result = resobj.result if @__hasError(resobj) is false
-
-            @__performCallback(@__callback, result)
+                @__performCallback(@__callback, result)
 
     # Update a record
     doUpdate: (valuemap, callback) ->
         @log.debug "doUpdate"
         return if not valuemap?
         @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
+        if not @__checkLogin() @__performCallback(@__callback, false)
         else
             request.post
                 url: @_wsUrl
@@ -300,9 +296,7 @@ class NodeVtigerWS
     doCreate: (module, valuemap, callback) ->
         @log.debug "doCreate: module=" + module 
         @__callback = callback
-        
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
+        if not @__checkLogin() @__performCallback(@__callback, false)
         else
             valuemap.assigned_user_id = @_wsUserId  unless valuemap.assigned_user_id?
             request.post
@@ -313,7 +307,6 @@ class NodeVtigerWS
                     sessionName: @_wsSessionName
                     elementType: module
                     element: JSON.stringify(valuemap)
-
             , (e, r, body) =>
                 @__processResponse(e, r, body)
 

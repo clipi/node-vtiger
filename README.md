@@ -2,20 +2,13 @@
 
 ## Abstract
 
-Node-vtiger is a wrapper of Vtiger REST API in Node.js.
+Node-vtiger, written in CoffeeScript, is a wrapper of Vtiger REST API in Node.js.
+I use it for a robot witch is doing automated task
 
 ## Install
 
 <pre>
   npm install node-vtiger
-</pre>
-
-or
-
-<pre>
-  git clone git://github.com/clipi/node-vtiger.git 
-  cd node-vtiger
-  npm link
 </pre>
 
 
@@ -40,6 +33,7 @@ or
     client.doRetrieve(id, callback)
     client.doUpdate(valuemap, callback)
     client.doCreate(valuemap, callback)
+    client.doSync(modifiedTime, module, callback)
     client.doInvoke(callback, method, params) # not tested
 </pre>
 

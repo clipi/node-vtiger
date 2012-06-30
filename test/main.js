@@ -1,7 +1,7 @@
 (function() {
-  var VT_ACCESSKEY, VT_LEAD_TEST_ID, VT_LEAD_TEST_NO, VT_URL, VT_USER, client, doCreateTest, doDeleteTest, doDescribeTest, doQueryTest, doRetreiveTest, doUpdateTest, endTest, log, logger, nbErrors, vt_lead_test, vtws;
+  var TEST_MODIFIED_TIME, VT_ACCESSKEY, VT_URL, VT_USER, client, doCreateTest, doDeleteTest, doDescribeTest, doQueryTest, doRetreiveTest, doSyncTest, doUpdateTest, endTest, log, logger, nbErrors, vt_lead_test, vtws;
 
-  vtws = require('node-vtiger');
+  vtws = require('../lib/nodevtiger.js');
 
   logger = require('basic-logger');
 
@@ -17,9 +17,7 @@
 
   VT_ACCESSKEY = '';
 
-  VT_LEAD_TEST_NO = 'CIB4472';
-
-  VT_LEAD_TEST_ID = '2x4808';
+  TEST_MODIFIED_TIME = '1340208309';
 
   if (process.argv.length !== 5) {
     log.error("usage: test/main.js url username accesskey");
@@ -142,6 +140,20 @@
     var _this = this;
     log.debug('\n############################## test doDescribe');
     return client.doDescribe('Leads', function(result) {
+      if (!result) {
+        log.error("error");
+        return nbErrors += 1;
+      } else {
+        log.debug(JSON.stringify(result, null, 4));
+        return doSyncTest();
+      }
+    });
+  };
+
+  doSyncTest = function() {
+    var _this = this;
+    log.debug('\n############################## test doSync');
+    return client.doSync(TEST_MODIFIED_TIME, 'Leads', function(result) {
       if (!result) {
         log.error("error");
         return nbErrors += 1;

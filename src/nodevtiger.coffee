@@ -247,6 +247,19 @@ class NodeVtigerWS
         params = '?operation=retrieve&sessionName=' + @_wsSessionName + '&id=' + id
         request @_wsUrl + params , (e, r, body) =>
             @__processResponse(e, r, body)
+            
+    # Sync will return a SyncResult object containing details of changes after modifiedTime.
+    doSync: (modifiedTime, module, callback) ->
+        @log.debug 'doSync: ' + modifiedTime + ' ' + module
+        
+        return if not @__checkLogin()
+        @__callback = callback
+        
+        params = '?operation=sync&sessionName=' + @_wsSessionName + '&modifiedTime=' + modifiedTime
+        params += '&elementType=' + module if module
+        
+        request @_wsUrl + params , (e, r, body) =>
+            @__processResponse(e, r, body)
 
     # delete a record by his id ( in the form <moduleid>'x'<recordid> )
     doDelete: (id, callback) ->

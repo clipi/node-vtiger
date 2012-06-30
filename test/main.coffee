@@ -5,7 +5,7 @@
 #
 # You can find the accesskey in vtiger user "my preferences"
 
-vtws        = require('node-vtiger')
+vtws        = require '../lib/nodevtiger.js'
 logger      = require 'basic-logger'
 logger.setLevel 'debug'
 
@@ -15,8 +15,7 @@ log = new logger( prefix: "test")
 VT_URL              = ''
 VT_USER             = ''
 VT_ACCESSKEY        = ''
-VT_LEAD_TEST_NO     = 'CIB4472'
-VT_LEAD_TEST_ID     = '2x4808'
+TEST_MODIFIED_TIME  = '1340208309' # timestamp 2012-06-20
 
 if process.argv.length isnt 5
     log.error "usage: test/main.js url username accesskey"
@@ -129,9 +128,22 @@ doDescribeTest = ->
             nbErrors += 1
         else
             log.debug JSON.stringify(result, null, 4)
-            endTest()
+            doSyncTest()
     )
 
+doSyncTest = ->
+    log.debug('\n############################## test doSync')
+
+    client.doSync( TEST_MODIFIED_TIME, 'Leads'
+    , (result) =>
+        if not result
+            log.error "error"
+            nbErrors += 1
+        else
+            log.debug JSON.stringify(result, null, 4)
+            endTest()
+    )
+    
 endTest = ->
     log.debug "\n\nEnd of tests\n\n"
     if nbErrors is 0

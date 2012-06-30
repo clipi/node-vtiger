@@ -45,13 +45,13 @@ or
 
 ## Acknowledgement
 
-http://forge.vtiger.com/projects/vtwsclib/
-http://vtiger.com
-http://nodejs.org
-http://coffeescript.org
-https://github.com/mikeal/request/
-http://expressjs.com
-https://github.com/drd0rk/logger
+http://forge.vtiger.com/projects/vtwsclib/ <br />
+http://vtiger.com <br />
+http://nodejs.org <br />
+http://coffeescript.org <br />
+https://github.com/mikeal/request/ <br />
+http://expressjs.com <br />
+https://github.com/drd0rk/logger <br />
 
 ## Licence
 

@@ -1,3 +1,18 @@
+
+/*
+        node-vtiger test
+
+        Usage:
+        test/main.js url username accesskey
+        test/main.js http://example.com/vtigercrm admin vHgFdsrFrdRdfR
+
+        You can find the accesskey in vtiger user "my preferences"
+
+        local invocation, usually
+        vtws = require 'node-vtiger'
+*/
+
+
 (function() {
   var TEST_MODIFIED_TIME, VT_ACCESSKEY, VT_URL, VT_USER, client, doCreateTest, doDeleteTest, doDescribeTest, doQueryTest, doRetreiveTest, doSyncTest, doUpdateTest, endTest, log, logger, nbErrors, vt_lead_test, vtws;
 
@@ -39,9 +54,9 @@
   client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug');
 
   client.doLogin(function(result) {
-    log.debug(VT_URL);
+    log.debug('login ' + VT_URL + ' ' + VT_USER + ' ' + VT_ACCESSKEY);
     if (result === false) {
-      return log.error('error, we are not logged');
+      return log.error('login->result is false, we are not logged');
     } else {
       return doCreateTest();
     }
@@ -128,7 +143,7 @@
 
   doDescribeTest = function() {
     var _this = this;
-    log.debug('\n############################## test doDescribe');
+    log.debug('\n############################## test doDescribe Leads');
     return client.doDescribe('Leads', function(result) {
       if (!result) {
         log.error("error");

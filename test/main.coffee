@@ -1,14 +1,17 @@
-# Usage:
-#
-# test/main.js url username accesskey
-# test/main.js http://example.com/vtigercrm admin vHgFdsrFrdRdfR
-#
-# You can find the accesskey in vtiger user "my preferences"
+###
+        node-vtiger test
 
-# local invocation, usually
-# vtws = require 'node-vtiger'
+        Usage:
+        test/main.js url username accesskey
+        test/main.js http://example.com/vtigercrm admin vHgFdsrFrdRdfR
+
+        You can find the accesskey in vtiger user "my preferences"
+
+        local invocation, usually
+        vtws = require 'node-vtiger'
+###
+
 vtws        = require '../lib/nodevtiger.js'
-
 logger      = require 'basic-logger'
 logger.setLevel 'debug'
 
@@ -38,9 +41,9 @@ console.log 'test: create Vtiger_WSClient instance'
 client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug')
 
 client.doLogin( (result) ->
-    log.debug VT_URL
+    log.debug 'login ' + VT_URL + ' ' + VT_USER + ' ' + VT_ACCESSKEY
     if result is false
-        log.error 'error, we are not logged'
+        log.error 'login->result is false, we are not logged'
     else
         doCreateTest()
 )
@@ -114,7 +117,7 @@ doDeleteTest = ->
     )
 
 doDescribeTest = ->
-    log.debug('\n############################## test doDescribe')
+    log.debug('\n############################## test doDescribe Leads')
     client.doDescribe( 'Leads'
     , (result) =>
         if not result

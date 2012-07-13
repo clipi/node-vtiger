@@ -61,6 +61,7 @@ Step(
         log.debug('\n### doUpdate')
         log.debug 'change lastname to "test UPDATE"'
         vt_lead_test.lastname = "test UPDATE"
+        
         client.doUpdate vt_lead_test, this
 ,
     doQuery = (err, result) ->
@@ -71,6 +72,7 @@ Step(
         log.debug JSON.stringify result
         log.debug('\n### doQuery')
         query = "SELECT * FROM Leads WHERE lead_no='#{vt_lead_test.lead_no}'"
+        
         client.doQuery query, this
 ,
     doRetrieve = (err, result) ->
@@ -115,19 +117,7 @@ Step(
 
         client.doSync TEST_MODIFIED_TIME, 'Leads', this
 ,
-
     endOfTest = (err, result) ->
         log.debug JSON.stringify result
         log.debug '### END OF TESTS ###'
-
 )
-
-#client.doLogin( (err, result) ->
-#    client.doCreate(err, 'Leads', vt_lead_test
-#        , (result) =>
-#        if not result
-#            log.error "error"
-#        else
-#            log.debug JSON.stringify(result, null, 4)
-#    )
-#)

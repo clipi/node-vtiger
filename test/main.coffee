@@ -14,6 +14,7 @@
 vtws        = require '../lib/nodevtiger.js'
 logger      = require 'basic-logger'
 logger.setLevel 'debug'
+Step        = require 'step'
 
 log = new logger( prefix: "test")
 
@@ -34,116 +35,99 @@ vt_lead_test    =
     "lastname": "The Test",
     "company": "Test Company"
 
-nbErrors = 0
-
-console.log 'test: create Vtiger_WSClient instance'
-
+console.log '###  Tests node-vtiger'
+console.log 'create Vtiger_WSClient instance'
 client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug')
 
-client.doLogin( (result) ->
-    log.debug 'login ' + VT_URL + ' ' + VT_USER + ' ' + VT_ACCESSKEY
-    if result is false
-        log.error 'login->result is false, we are not logged'
-    else
-        doCreateTest()
+Step(
+    login = ->
+        return client.doLogin this
+,
+    doCreate = (err, result) ->
+        log.debug('\n### doCreate')
+        if err
+            log.error err
+            return err
+
+        client.doCreate 'Leads', vt_lead_test, this
+,
+    doUpdate = (err, result) ->
+        if err
+            log.error err
+            return err
+            
+        vt_lead_test = result
+        log.debug JSON.stringify result
+        log.debug('\n### doUpdate')
+        log.debug 'change lastname to "test UPDATE"'
+        vt_lead_test.lastname = "test UPDATE"
+        client.doUpdate vt_lead_test, this
+,
+    doQuery = (err, result) ->
+        if err
+            log.error err
+            return err
+            
+        log.debug JSON.stringify result
+        log.debug('\n### doQuery')
+        query = "SELECT * FROM Leads WHERE lead_no='#{vt_lead_test.lead_no}'"
+        client.doQuery query, this
+,
+    doRetrieve = (err, result) ->
+        if err
+            log.error err
+            return err
+            
+        log.debug JSON.stringify result
+        log.debug('\n### doRetrieve')
+        log.debug "id= #{vt_lead_test.id}"
+
+        client.doRetrieve vt_lead_test.id, this
+,
+   doDelete = (err, result) ->
+        if err
+            log.error err
+            return err
+            
+        log.debug JSON.stringify result
+        log.debug('\n### doDelete')
+        log.debug "id= #{vt_lead_test.id}"
+
+        client.doDelete vt_lead_test.id, this
+,
+   doDescribe = (err, result) ->
+        if err
+            log.error err
+            return err
+            
+        log.debug JSON.stringify result
+        log.debug('\n### doDescribe')
+
+        client.doDescribe 'Emails', this
+,
+   doSync = (err, result) ->
+        if err
+            log.error err
+            return err
+            
+        log.debug JSON.stringify result
+        log.debug('\n### doSync')
+
+        client.doSync TEST_MODIFIED_TIME, 'Leads', this
+,
+
+    endOfTest = (err, result) ->
+        log.debug JSON.stringify result
+        log.debug '### END OF TESTS ###'
+
 )
 
-doCreateTest = () ->
-    log.debug('\n############################## test doCreate')
-    client.doCreate('Leads', vt_lead_test
-    , (result) =>
-        if not result
-            log.error "error"
-            nbErrors += 1
-        else
-            log.debug JSON.stringify(result, null, 4)
-            vt_lead_test = result
-            doUpdateTest()
-    )
-
-doUpdateTest = () ->
-    log.debug('\n############################## test doUpdate')
-    log.debug 'change lastname to "test UPDATE"'
-    vt_lead_test.lastname = "test UPDATE"
-    client.doUpdate( vt_lead_test
-    , (result) =>
-        if not result
-            log.error "error"
-            nbErrors += 1
-        else
-            log.debug JSON.stringify(result, null, 4)
-            vt_lead_test = result
-            doQueryTest()
-    )
-
-doQueryTest =  ->
-    log.debug('\n############################## test doQuery')
-    query = "SELECT * FROM Leads WHERE lead_no='#{vt_lead_test.lead_no}'"
-    log.debug query
-    client.doQuery(query
-    , (result) =>
-        if not result
-            log.error "error"
-            nbErrors += 1
-        else
-            log.debug JSON.stringify(result, null, 4)
-            doRetreiveTest()
-    )
-
-doRetreiveTest = ->
-    log.debug('\n############################## test doRetrieve')
-    log.debug "id= #{vt_lead_test.id}"
-    client.doRetrieve(vt_lead_test.id
-    , (result) =>
-        if not result
-            log.error "error"
-            nbErrors += 1
-        else
-            log.debug JSON.stringify(result, null, 4)
-            doDeleteTest()
-    )
-
-doDeleteTest = ->
-    log.debug('\n############################## test doDelete')
-    log.debug "id= #{vt_lead_test.id}"
-    client.doDelete(vt_lead_test.id
-    , (result) =>
-        if not result
-            log.error "error"
-            nbErrors += 1
-        else
-            log.debug JSON.stringify(result, null, 4)
-            doDescribeTest()
-    )
-
-doDescribeTest = ->
-    log.debug('\n############################## test doDescribe Leads')
-    client.doDescribe( 'Leads'
-    , (result) =>
-        if not result
-            log.error "error"
-            nbErrors += 1
-        else
-            log.debug JSON.stringify(result, null, 4)
-            doSyncTest()
-    )
-
-doSyncTest = ->
-    log.debug('\n############################## test doSync')
-
-    client.doSync( TEST_MODIFIED_TIME, 'Leads'
-    , (result) =>
-        if not result
-            log.error "error"
-            nbErrors += 1
-        else
-            log.debug JSON.stringify(result, null, 4)
-            endTest()
-    )
-    
-endTest = ->
-    log.debug "\n\nEnd of tests\n\n"
-    if nbErrors is 0
-        log.debug 'Test completed without errors'
-    else
-        log.error "############ #{nbErrors} errors during test ##############################"
+#client.doLogin( (err, result) ->
+#    client.doCreate(err, 'Leads', vt_lead_test
+#        , (result) =>
+#        if not result
+#            log.error "error"
+#        else
+#            log.debug JSON.stringify(result, null, 4)
+#    )
+#)

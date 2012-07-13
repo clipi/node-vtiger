@@ -16,6 +16,8 @@ I use it for a robot (node) which is doing automated tasks.
 
 The best way to learn how to use the module.<br />
 The test is tranparent, it creates a lead, update, query, and delete it.<br />
+The test use step module for serial execution.<br />
+Before runing the test you have to 'npm install step' in the module folder.<br />
 
 <pre>
     test/main.js url username accesskey
@@ -34,7 +36,7 @@ VTiger webservice API: https://wiki.vtiger.com/index.php/Webservices_tutorials<b
     client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug')
     client.doLogin(callback)
     client.doQuery(query, callback)
-    client.doDescribe(module, callnack)
+    client.doDescribe(module, callback)
     client.doRetrieve(id, callback)
     client.doUpdate(valuemap, callback)
     client.doCreate(valuemap, callback)
@@ -48,8 +50,8 @@ http://vtiger.com <br />
 http://nodejs.org <br />
 http://coffeescript.org <br />
 https://github.com/mikeal/request/ <br />
-http://expressjs.com <br />
 https://github.com/drd0rk/logger <br />
+https://github.com/creationix/step/ <br />
 
 ## License
 

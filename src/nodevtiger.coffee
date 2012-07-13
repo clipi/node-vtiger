@@ -27,13 +27,12 @@ class NodeVtigerWS
             "Content-Type":     "application/json"
             "Accept-Charset":   "utf-8"
                 
-        @__callback     = false
+        @callback           = false
         
         logger  = require 'basic-logger'
         logger.setLevel level
-        @log            = new logger( prefix: "node-vtiger")
-        
-        @log.debug "Vtiger_WSClient constructor"
+        @log                = new logger( prefix: "node-vtiger")
+        @log.debug "NodeVtigerWS constructor"
         
     # check if the response from vtigerws has an error "success":false
     # store the error in _lastError
@@ -51,21 +50,25 @@ class NodeVtigerWS
                     "code":     "NULL_RESULT"
                     "message":  "Resultdata is null"
             return true
-        @_lastError = false
+        @_lastError = null
         return false
     
     # execute callback directly or
     # with arguments if the callback is in the form
     # {function:callback, arguments:{'arg1' : 'value1'...}
-    __performCallback: (callback, result) ->
+    __performCallback: (err, result) ->
         @log.debug "performCallback"
-        if callback?
-            callbackFunction = callback
+        if @callback?
+            callbackFunction = @callback
             callbackArguments = false
             if typeof (callback) is "object"
-                callbackFunction = callback.function
-                callbackArguments = callback.arguments
-            callbackFunction result, callbackArguments  if typeof (callbackFunction) is "function"
+                @log.debug 'callback is object'
+                callbackFunction = @callback.function
+                callbackArguments = @callback.arguments
+            return callbackFunction err, result, callbackArguments  if typeof (callbackFunction) is "function"
+        else
+            @log.error '@__performCallback without @callback'
+            return false
     
     # check if we are logged
     __checkLogin: ->
@@ -101,15 +104,18 @@ class NodeVtigerWS
             resobj = JSON.parse(body)
             if @__hasError(resobj) is false
                 result = resobj.result
-        #@log.debug "et je renvois" + JSON.stringify(result)
-        @__performCallback(@__callback, result)
+        @__performCallback(@_lastError, result)
+        return
     
     lastError: ->
         return @_lastError
         
-    doLogin: (callback=false) ->
+    doLogin: (@callback) ->
         @log.debug "doLogin: #{ @_wsUsername }, #{ @_wsAccesskey }"
-        @__callback = callback
+
+        if @_isLogged
+            @log.debug "Trying to log, but we a are logged"
+            return @__performCallback(null, true)
         
         params = "?operation=getchallenge&username=#{@_wsUsername}"
         @log.debug @_wsUrl + params
@@ -120,7 +126,7 @@ class NodeVtigerWS
                     "error":
                         "code":     "ERROR_ON_REQUEST"
                         "message":  "Error on request (get challenge)"
-                @__performCallback(@__callback, false)
+                @__performCallback(@_lastError, false)
                 return false
                 
             else if r.statusCode isnt 200
@@ -129,8 +135,7 @@ class NodeVtigerWS
                     "error":
                         "code":     "ERROR_REQUEST_STATUS_CODE"
                         "message":  "Error on request, statusCode = #{ r.statusCode }"
-                @__performCallback(@__callback, false)
-                return false
+                return @__performCallback(@_lastError, false)
             
             # paranoid check
             try
@@ -138,20 +143,17 @@ class NodeVtigerWS
             catch ex
                 @log.error body
                 @log.error ex
-                @__performCallback(@__callback, false)
-                return false
+                return @__performCallback(ex, null, @callback)
                 
             if @__hasError(response)
-                @__performCallback(@__callback, false)
-                return false
+                return @__performCallback(response, false)
                 
             if response.result.token is false
                 @_lastError = 
                     "error":
                         "code":     "NO_TOKEN_AFTER_CHALLENGE"
                         "message":  "No token after challenge"
-                @__performCallback(@__callback, false)
-                return false
+                return @__performCallback(@_lastError, false)
                 
             @_wsToken = response.result.token
             
@@ -180,141 +182,110 @@ class NodeVtigerWS
                             "message":  "Error on request, statusCode = #{ r.statusCode }"
                 else
                     resobj = JSON.parse(body)  
+                    @log.debug JSON.stringify body, null, 4
                     if @__hasError(resobj) is false
                         result = true
                         @_isLogged  = true
                         @_wsSessionName = resobj.result.sessionName
                         @log.debug "sessionid=" + @_wsSessionName
                         @_wsUserId    = resobj.result.userId
-                @__performCallback(@__callback, result)
-
-        return @_isLogged
+                return @__performCallback(@_lastError, result)
+                
+            # avoid coffeescript to generate the return request and break async
+            return
+        return
     
-    # Webservices provides custom subset of SQL support to work with vtiger CRM.
-    # query = " SELECT * FROM Leads WHERE lead_no = 'CIB883' "
-    doQuery: (query, callback) ->
+    # query = " SELECT * FROM Leads WHERE lead_no = 'LEA883' "
+    doQuery: (query, @callback) ->
         @log.debug 'doQuery: ' + query
-        @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
-        else
-            query += ";" if query.indexOf(";") is -1
-            params = '?operation=query&sessionName=' + @_wsSessionName + '&query=' + escape(query)
-            @log.debug @_wsUrl + params
-            request @_wsUrl + params , (e, r, body) =>
-                @__processResponse(e, r, body)
+        return @__performCallback(@_lastError, false) if not @__checkLogin()
+        query += ";" if query.indexOf(";") is -1
+        params = '?operation=query&sessionName=' + @_wsSessionName + '&query=' + escape(query)
+        @log.debug @_wsUrl + params
+        request @_wsUrl + params , (e, r, body) =>
+            return @__processResponse(e, r, body)
+        return
     
     # Information about fields of the module, permission to create, delete, update records
     # of the module can be obtained.
-    doDescribe: (module, callback) ->
+    doDescribe: (module, @callback) ->
         @log.debug 'doDescribe ' + module
-        @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
-        else
-            params = '?operation=describe&sessionName=' + @_wsSessionName + '&elementType=' + module
-            @log.debug @_wsUrl + params
-            request @_wsUrl + params , (e, r, body) =>
-                @__processResponse(e, r, body)
+        return @__performCallback(@_lastError, false) if not @__checkLogin()
+        params = '?operation=describe&sessionName=' + @_wsSessionName + '&elementType=' + module
+        @log.debug @_wsUrl + params
+        request @_wsUrl + params , (e, r, body) =>
+            return @__processResponse(e, r, body)
+        return
     
     # Retrieve information of existing record of the module.
     # id must be in the foorm <moduleid>'x'<recordid>
-    doRetrieve: (id, callback) ->
+    doRetrieve: (id, @callback) ->
         @log.debug 'doRetrieve: ' + id
-        @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
-        else
-            params = '?operation=retrieve&sessionName=' + @_wsSessionName + '&id=' + id
-            @log.debug @_wsUrl + params
-            request @_wsUrl + params , (e, r, body) =>
-                @__processResponse(e, r, body)
+        return @__performCallback(@_lastError, false) if not @__checkLogin()
+        params = '?operation=retrieve&sessionName=' + @_wsSessionName + '&id=' + id
+        @log.debug @_wsUrl + params
+        request @_wsUrl + params , (e, r, body) =>
+            return @__processResponse(e, r, body)
+        return
             
     # Sync will return a SyncResult object containing details of changes after modifiedTime.
-    doSync: (modifiedTime, module, callback) ->
+    doSync: (modifiedTime, module, @callback) ->
         @log.debug 'doSync: ' + modifiedTime + ' ' + module
-        @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
-        else
-            params = '?operation=sync&sessionName=' + @_wsSessionName + '&modifiedTime=' + modifiedTime
-            params += '&elementType=' + module if module
-            @log.debug @_wsUrl + params
-            request @_wsUrl + params , (e, r, body) =>
-                @__processResponse(e, r, body)
+        return @__performCallback(@_lastError, false) if not @__checkLogin()
+        params = '?operation=sync&sessionName=' + @_wsSessionName + '&modifiedTime=' + modifiedTime
+        params += '&elementType=' + module if module
+        @log.debug @_wsUrl + params
+        request @_wsUrl + params , (e, r, body) =>
+            return @__processResponse(e, r, body)
+        return
 
     # Delete a record
     # id ( in the form <moduleid>'x'<recordid> )
-    doDelete: (id, callback) ->
+    doDelete: (id, @callback) ->
         @log.debug 'doDelete: ' + id
-        @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
-        else
-            request.post
-                url: @_wsUrl
-                headers: @_default_headers
-                form:
-                    operation: "delete"
-                    id: id
-                    sessionName: @_wsSessionName
-            , (e, r, body) =>
-                result = false
-                if e
-                    @log.error "request -> error: #{ JSON.stringify(error) }"
-                    @_lastError = 
-                        "error":
-                            "code":     "ERROR_ON_REQUEST"
-                            "message":  "Error on request (post)"
-
-                else if r.statusCode isnt 200
-                    @log.error "response.statusCode is #{ r.statusCode }"
-                    @_lastError = 
-                        "error":
-                            "code":     "ERROR_REQUEST_STATUS_CODE"
-                            "message":  "Error on request, statusCode = #{ r.statusCode }"
-                else
-                    resobj = JSON.parse(body)  
-                    result = resobj.result if @__hasError(resobj) is false
-
-                @__performCallback(@__callback, result)
+        return @__performCallback(@_lastError, false) if not @__checkLogin()
+        request.post
+            url: @_wsUrl
+            headers: @_default_headers
+            form:
+                operation: "delete"
+                id: id
+                sessionName: @_wsSessionName
+        , (e, r, body) =>
+            return @__processResponse(e, r, body)
+        return
 
     # Update a record
-    doUpdate: (valuemap, callback) ->
+    doUpdate: (valuemap, @callback) ->
         @log.debug "doUpdate"
-        return if not valuemap?
-        @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
-        else
-            request.post
-                url: @_wsUrl
-                headers: @_default_headers
-                form:
-                    "operation":        "update"
-                    "sessionName":     @_wsSessionName
-                    "element":          JSON.stringify(valuemap)
+        return @__performCallback(@_lastError, false) if not @__checkLogin()
+        request.post
+            url: @_wsUrl
+            headers: @_default_headers
+            form:
+                "operation":        "update"
+                "sessionName":     @_wsSessionName
+                "element":          JSON.stringify(valuemap)
 
-            , (e, r, body) =>
-                @__processResponse(e, r, body)
+        , (e, r, body) =>
+            return @__processResponse(e, r, body)
+        return
     
     # Create a record, a moduleName must be provided
-    doCreate: (module, valuemap, callback) ->
+    doCreate: (module, valuemap, @callback) ->
         @log.debug "doCreate: module=" + module 
-        @__callback = callback
-        if not @__checkLogin()
-            @__performCallback(@__callback, false)
-        else
-            valuemap.assigned_user_id = @_wsUserId  unless valuemap.assigned_user_id?
-            request.post
-                url: @_wsUrl
-                headers: @_default_headers
-                form:
-                    operation: "create"
-                    sessionName: @_wsSessionName
-                    elementType: module
-                    element: JSON.stringify(valuemap)
-            , (e, r, body) =>
-                @__processResponse(e, r, body)
+        return @__performCallback(@_lastError, false) if not @__checkLogin()
+        valuemap.assigned_user_id = @_wsUserId  unless valuemap.assigned_user_id?
+        request.post
+            url: @_wsUrl
+            headers: @_default_headers
+            form:
+                operation: "create"
+                sessionName: @_wsSessionName
+                elementType: module
+                element: JSON.stringify(valuemap)
+        , (e, r, body) =>
+            return @__processResponse(e, r, body)
+        return
 
 module.exports = NodeVtigerWS

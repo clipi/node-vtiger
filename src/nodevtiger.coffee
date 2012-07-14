@@ -13,7 +13,7 @@ request = require 'request'
 
 class NodeVtigerWS
 
-    constructor: (url, username, accesskey, level='debug' ) ->
+    constructor: (url, username, accesskey, level='warning' ) ->
         @_wsUrl             = url + '/webservice.php'
         @_wsUsername        = username
         @_wsAccesskey       = accesskey
@@ -22,29 +22,29 @@ class NodeVtigerWS
         @_wsUserId          = false
         @_isLogged          = false
         @_lastError         = false
+        @callback           = false
+        
         @_default_headers   =
             "Accept":           "application/json"
             "Content-Type":     "application/json"
             "Accept-Charset":   "utf-8"
-                
-        @callback           = false
         
         logger  = require 'basic-logger'
         logger.setLevel level
         @log                = new logger( prefix: "node-vtiger")
-        @log.debug "NodeVtigerWS constructor"
+        @log.trace "NodeVtigerWS constructor"
         
     # check if the response from vtigerws has an error "success":false
     # store the error in _lastError
     __hasError: (resultdata) ->
-        @log.debug "hasError"
+        @log.trace "hasError"
         if resultdata?
             if resultdata.success is false
                 @log.error "erreur result= #{ JSON.stringify(resultdata.error) }"
                 @_lastError = resultdata.error
                 return true
         else
-            @log.error "result data is null"
+            @log.error "__hasError: result data is null"
             @_lastError = 
                 "error":
                     "code":     "NULL_RESULT"
@@ -57,24 +57,24 @@ class NodeVtigerWS
     # with arguments if the callback is in the form
     # {function:callback, arguments:{'arg1' : 'value1'...}
     __performCallback: (err, result) ->
-        @log.debug "performCallback"
+        @log.trace "performCallback"
         if @callback?
             callbackFunction = @callback
             callbackArguments = false
             if typeof (callback) is "object"
-                @log.debug 'callback is object'
+                @log.trace 'callback is object'
                 callbackFunction = @callback.function
                 callbackArguments = @callback.arguments
             return callbackFunction err, result, callbackArguments  if typeof (callbackFunction) is "function"
         else
-            @log.error '@__performCallback without @callback'
+            @log.error '__performCallback without @callback'
             return false
     
     # check if we are logged
     __checkLogin: ->
-        @log.debug "checkLogin"
+        @log.trace "checkLogin"
         if @_isLogged is false
-            @log.error "isLogged = false, I quit"
+            @log.error "__checkLogin: isLogged = false, I quit"
             @_lastError = 
                 "error":
                     "code":     "NOT_LOGGED"
@@ -85,7 +85,7 @@ class NodeVtigerWS
     
     # process the respone after a request get or post
     __processResponse: (error, response, body)->
-        @log.debug "processResponse "
+        @log.trace "processResponse "
         result = false
         if error
             @log.error "request -> error"
@@ -95,15 +95,14 @@ class NodeVtigerWS
                     "message":  "Error on request"
             @_lastError = error
         else if response.statusCode is not 200
-            @log.error "response.statusCode is not 200"
+            @log.error "__processResponse: response.statusCode is not #{ response.statusCode }"
             @_lastError = 
                 "error":
                     "code":     "ERROR_REQUEST_STATUS_CODE"
                     "message":  "Error on request, statusCode = #{ response.statusCode }"
         else
             resobj = JSON.parse(body)
-            if @__hasError(resobj) is false
-                result = resobj.result
+            result = resobj.result if @__hasError(resobj) is false
         @__performCallback(@_lastError, result)
         return
     
@@ -111,17 +110,17 @@ class NodeVtigerWS
         return @_lastError
         
     doLogin: (@callback) ->
-        @log.debug "doLogin: #{ @_wsUsername }, #{ @_wsAccesskey }"
+        @log.trace "doLogin: #{ @_wsUsername }, #{ @_wsAccesskey }"
 
         if @_isLogged
-            @log.debug "Trying to log, but we a are logged"
+            @log.trace "Trying to log, but we a are logged"
             return @__performCallback(null, true)
         
         params = "?operation=getchallenge&username=#{@_wsUsername}"
-        @log.debug @_wsUrl + params
+        @log.trace @_wsUrl + params
         request @_wsUrl + params , (e, r, body) =>
             if e
-                @log.error "request -> error: #{ JSON.stringify(error) }"
+                @log.error "doLogin: request getChallenge -> error: #{ JSON.stringify(error) }"
                 @_lastError = 
                     "error":
                         "code":     "ERROR_ON_REQUEST"
@@ -130,7 +129,7 @@ class NodeVtigerWS
                 return false
                 
             else if r.statusCode isnt 200
-                @log.error "response.statusCode is #{ r.statusCode }"
+                @log.error "doLogin: request getChallenge, response.statusCode is #{ r.statusCode }"
                 @_lastError = 
                     "error":
                         "code":     "ERROR_REQUEST_STATUS_CODE"
@@ -149,6 +148,7 @@ class NodeVtigerWS
                 return @__performCallback(response, false)
                 
             if response.result.token is false
+                @log.error "doLogin: response.result.token is false"
                 @_lastError = 
                     "error":
                         "code":     "NO_TOKEN_AFTER_CHALLENGE"
@@ -157,7 +157,7 @@ class NodeVtigerWS
                 
             @_wsToken = response.result.token
             
-            @log.debug "POST @_wsUrl login #{@_wsUsername}"
+            @log.trace "POST @_wsUrl login #{@_wsUsername}"
             request.post
                 url: @_wsUrl
                 headers: @_default_headers
@@ -168,81 +168,80 @@ class NodeVtigerWS
             , (e, r, body) =>
                 result = false
                 if e
-                    @log.error "request -> error: #{ JSON.stringify(error) }"
+                    @log.error "doLogin: login, request -> error: #{ JSON.stringify(error) }"
                     @_lastError = 
                         "error":
                             "code":     "ERROR_ON_REQUEST"
                             "message":  "Error on request (post)"
 
                 else if r.statusCode isnt 200
-                    @log.error "response.statusCode is #{ r.statusCode }"
+                    @log.error "doLogin: login, response.statusCode is #{ r.statusCode }"
                     @_lastError = 
                         "error":
                             "code":     "ERROR_REQUEST_STATUS_CODE"
                             "message":  "Error on request, statusCode = #{ r.statusCode }"
                 else
                     resobj = JSON.parse(body)  
-                    @log.debug JSON.stringify body, null, 4
                     if @__hasError(resobj) is false
-                        result = true
+                        result = resobj.result
                         @_isLogged  = true
                         @_wsSessionName = resobj.result.sessionName
-                        @log.debug "sessionid=" + @_wsSessionName
+                        @log.trace "sessionid=" + @_wsSessionName
                         @_wsUserId    = resobj.result.userId
                 return @__performCallback(@_lastError, result)
                 
             # avoid coffeescript to generate the return request and break async
+            # equivalent to 'return undefined'
             return
         return
     
     # query = " SELECT * FROM Leads WHERE lead_no = 'LEA883' "
     doQuery: (query, @callback) ->
-        @log.debug 'doQuery: ' + query
+        @log.trace 'doQuery: ' + query
         return @__performCallback(@_lastError, false) if not @__checkLogin()
         query += ";" if query.indexOf(";") is -1
         params = '?operation=query&sessionName=' + @_wsSessionName + '&query=' + escape(query)
-        @log.debug @_wsUrl + params
+        @log.trace @_wsUrl + params
         request @_wsUrl + params , (e, r, body) =>
             return @__processResponse(e, r, body)
         return
     
     # Information about fields of the module, permission to create, delete, update records
-    # of the module can be obtained.
     doDescribe: (module, @callback) ->
-        @log.debug 'doDescribe ' + module
+        @log.trace 'doDescribe ' + module
         return @__performCallback(@_lastError, false) if not @__checkLogin()
         params = '?operation=describe&sessionName=' + @_wsSessionName + '&elementType=' + module
-        @log.debug @_wsUrl + params
+        @log.trace @_wsUrl + params
         request @_wsUrl + params , (e, r, body) =>
             return @__processResponse(e, r, body)
         return
     
     # Retrieve information of existing record of the module.
-    # id must be in the form <moduleid>'x'<recordid>
+    # id = <moduleid>'x'<recordid>
     doRetrieve: (id, @callback) ->
-        @log.debug 'doRetrieve: ' + id
+        @log.trace 'doRetrieve: ' + id
         return @__performCallback(@_lastError, false) if not @__checkLogin()
         params = '?operation=retrieve&sessionName=' + @_wsSessionName + '&id=' + id
-        @log.debug @_wsUrl + params
+        @log.trace @_wsUrl + params
         request @_wsUrl + params , (e, r, body) =>
             return @__processResponse(e, r, body)
         return
             
     # Sync will return a SyncResult object containing details of changes after modifiedTime.
     doSync: (modifiedTime, module, @callback) ->
-        @log.debug 'doSync: ' + modifiedTime + ' ' + module
+        @log.trace 'doSync: ' + modifiedTime + ' ' + module
         return @__performCallback(@_lastError, false) if not @__checkLogin()
         params = '?operation=sync&sessionName=' + @_wsSessionName + '&modifiedTime=' + modifiedTime
         params += '&elementType=' + module if module
-        @log.debug @_wsUrl + params
+        @log.trace @_wsUrl + params
         request @_wsUrl + params , (e, r, body) =>
             return @__processResponse(e, r, body)
         return
 
     # Delete a record
-    # id ( in the form <moduleid>'x'<recordid> )
+    # id = <moduleid>'x'<recordid>
     doDelete: (id, @callback) ->
-        @log.debug 'doDelete: ' + id
+        @log.trace 'doDelete: ' + id
         return @__performCallback(@_lastError, false) if not @__checkLogin()
         request.post
             url: @_wsUrl
@@ -256,8 +255,14 @@ class NodeVtigerWS
         return
 
     # Update a record
-    doUpdate: (valuemap, @callback) ->
-        @log.debug "doUpdate"
+    doUpdate: (valueMap, @callback) ->
+        @log.trace "doUpdate"
+        if not valueMap.id?
+            @_lastError = 
+                "error":
+                    "code":     "ERROR_UPDATE_NO_ID"
+                    "message":  "doUpdate without id"
+            return @__performCallback(@_lastError, false)
         return @__performCallback(@_lastError, false) if not @__checkLogin()
         request.post
             url: @_wsUrl
@@ -265,17 +270,16 @@ class NodeVtigerWS
             form:
                 "operation":        "update"
                 "sessionName":     @_wsSessionName
-                "element":          JSON.stringify(valuemap)
-
+                "element":          JSON.stringify(valueMap)
         , (e, r, body) =>
             return @__processResponse(e, r, body)
         return
     
     # Create a record, a moduleName must be provided
-    doCreate: (module, valuemap, @callback) ->
-        @log.debug "doCreate: module=" + module 
+    doCreate: (module, valueMap, @callback) ->
+        @log.trace "doCreate: module=" + module 
         return @__performCallback(@_lastError, false) if not @__checkLogin()
-        valuemap.assigned_user_id = @_wsUserId  unless valuemap.assigned_user_id?
+        valueMap.assigned_user_id = @_wsUserId  unless valueMap.assigned_user_id?
         request.post
             url: @_wsUrl
             headers: @_default_headers
@@ -283,7 +287,7 @@ class NodeVtigerWS
                 operation: "create"
                 sessionName: @_wsSessionName
                 elementType: module
-                element: JSON.stringify(valuemap)
+                element: JSON.stringify(valueMap)
         , (e, r, body) =>
             return @__processResponse(e, r, body)
         return

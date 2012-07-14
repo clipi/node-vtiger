@@ -13,9 +13,9 @@
 
 vtws        = require '../lib/nodevtiger.js'
 logger      = require 'basic-logger'
-logger.setLevel 'debug'
 Step        = require 'step'
 
+logger.setLevel 'debug'
 log = new logger( prefix: "test")
 
 TEST_MODIFIED_TIME  = '1340208309' # timestamp 2012-06-20
@@ -23,7 +23,8 @@ TEST_MODIFIED_TIME  = '1340208309' # timestamp 2012-06-20
 if process.argv.length isnt 5
     log.error "usage: test/main.js url username accesskey"
     process.exit 1
-    
+
+LOGGING_LEVEL       = 'debug'
 VT_URL              = process.argv[2]
 VT_USER             = process.argv[3]
 VT_ACCESSKEY        = process.argv[4]
@@ -36,8 +37,8 @@ vt_lead_test    =
     "company": "Test Company"
 
 console.log '###  Tests node-vtiger'
-console.log 'create Vtiger_WSClient instance'
-client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug')
+console.log 'create NodeVtigerWS instance'
+client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, LOGGING_LEVEL)
 
 Step(
     login = ->

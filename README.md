@@ -14,7 +14,7 @@ I use it for a robot (node) which is doing automated tasks.
 
 ## Test
 
-The best way to learn how to use the module.<br />
+Show how to use the module.<br />
 The test is tranparent, it creates a lead, update, query, and delete it.<br />
 The test use step module for serial execution.<br />
 
@@ -33,6 +33,9 @@ VTiger webservice API: https://wiki.vtiger.com/index.php/Webservices_tutorials<b
     VT_URL = 'http://example.com/vtigercrm'
     VT_USER = 'admin'
     VT_ACCESSKEY = 'rFtfsdRfTgUggY' # accesskey is in your vtiger user preferences
+    LEVEL = 'debug' # level of logging (error||warning||warn||info||debug||trace)
+                    # The log in the module are at the level trace
+
     client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug')
     client.doLogin(callback)
     client.doQuery(query, callback)

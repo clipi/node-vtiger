@@ -14,15 +14,15 @@
 
 
 (function() {
-  var Step, TEST_MODIFIED_TIME, VT_ACCESSKEY, VT_URL, VT_USER, client, doCreate, doDelete, doDescribe, doQuery, doRetrieve, doSync, doUpdate, endOfTest, log, logger, login, vt_lead_test, vtws;
+  var LOGGING_LEVEL, Step, TEST_MODIFIED_TIME, VT_ACCESSKEY, VT_URL, VT_USER, client, doCreate, doDelete, doDescribe, doQuery, doRetrieve, doSync, doUpdate, endOfTest, log, logger, login, vt_lead_test, vtws;
 
   vtws = require('../lib/nodevtiger.js');
 
   logger = require('basic-logger');
 
-  logger.setLevel('debug');
-
   Step = require('step');
+
+  logger.setLevel('debug');
 
   log = new logger({
     prefix: "test"
@@ -34,6 +34,8 @@
     log.error("usage: test/main.js url username accesskey");
     process.exit(1);
   }
+
+  LOGGING_LEVEL = 'debug';
 
   VT_URL = process.argv[2];
 
@@ -51,9 +53,9 @@
 
   console.log('###  Tests node-vtiger');
 
-  console.log('create Vtiger_WSClient instance');
+  console.log('create NodeVtigerWS instance');
 
-  client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug');
+  client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, LOGGING_LEVEL);
 
   Step(login = function() {
     return client.doLogin(this);

@@ -41,6 +41,7 @@ VTiger webservice API: https://wiki.vtiger.com/index.php/Webservices_tutorials<b
     client.doQuery(query, callback)
     client.doDescribe(module, callback)
     client.doRetrieve(id, callback)
+    client.doDelete(id, callback)
     client.doUpdate(valueMap, callback)
     client.doCreate(valueMap, callback)
     client.doSync(modifiedTime, module, callback)

@@ -15,7 +15,7 @@ I use it for a robot (node) which is doing automated tasks.
 ## Test
 
 Show how to use the module.<br />
-The test is tranparent, it creates a lead, update, query, and delete it.<br />
+Create, update, query, and delete a lead.<br />
 The test use step module for serial execution.<br />
 
 <pre>
@@ -29,20 +29,20 @@ The test use step module for serial execution.<br />
 VTiger webservice API: https://wiki.vtiger.com/index.php/Webservices_tutorials<br />
 
 <pre>
-    vtws = require('node-vtiger')
-    VT_URL = 'http://example.com/vtigercrm'
-    VT_USER = 'admin'
-    VT_ACCESSKEY = 'rFtfsdRfTgUggY' # accesskey is in your vtiger user preferences
-    LEVEL = 'debug' # level of logging (error||warning||warn||info||debug||trace)
-                    # The log in the module are at the level trace
+    vtws            = require('node-vtiger')
+    VT_URL          = 'http://example.com/vtigercrm'
+    VT_USER         = 'admin'
+    VT_ACCESSKEY    = 'rFtfsdRfTgUggY' # accesskey is in your vtiger user preferences
+    LOGGING_LEVEL   = 'debug'   # level of logging (error||warning||info||debug||trace)
+                                # The log in the module are at the level trace
 
-    client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'debug')
+    client = new vtws( VT_URL, VT_USER, VT_ACCESSKEY, LOGGING_LEVEL )
     client.doLogin(callback)
     client.doQuery(query, callback)
     client.doDescribe(module, callback)
     client.doRetrieve(id, callback)
-    client.doUpdate(valuemap, callback)
-    client.doCreate(valuemap, callback)
+    client.doUpdate(valueMap, callback)
+    client.doCreate(valueMap, callback)
     client.doSync(modifiedTime, module, callback)
 </pre>
 

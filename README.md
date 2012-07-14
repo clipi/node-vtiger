@@ -17,9 +17,9 @@ I use it for a robot (node) which is doing automated tasks.
 The best way to learn how to use the module.<br />
 The test is tranparent, it creates a lead, update, query, and delete it.<br />
 The test use step module for serial execution.<br />
-Before runing the test you have to 'npm install step' in the module folder.<br />
 
 <pre>
+    npm install step
     test/main.js url username accesskey
     test/main.js http://example.com/vtigercrm admin vHgFdsrFrdRdfR
 </pre>
@@ -43,15 +43,33 @@ VTiger webservice API: https://wiki.vtiger.com/index.php/Webservices_tutorials<b
     client.doSync(modifiedTime, module, callback)
 </pre>
 
+Example with Step, the very useful control-flow node library:<br />
+<pre>
+    Step   = require 'step'
+    client = new vtws(VT_URL, VT_USER, VT_ACCESSKEY, 'warning')
+
+    Step(
+        login = ->
+            return client.doLogin this
+    ,
+        doQuery = (err, result) ->
+            query = "SELECT * FROM Leads WHERE lead_no='LEA12345'"
+            client.doQuery query, this
+    ,
+        doWhatYouWant = (err, result) ->
+            console.log JSON.stringify result
+    )
+</pre>
+
 ## Acknowledgement
 
-http://forge.vtiger.com/projects/vtwsclib/ <br />
+http://forge.vtiger.com/projects/vtwsclib <br />
 http://vtiger.com <br />
 http://nodejs.org <br />
 http://coffeescript.org <br />
-https://github.com/mikeal/request/ <br />
+https://github.com/mikeal/request <br />
 https://github.com/drd0rk/logger <br />
-https://github.com/creationix/step/ <br />
+https://github.com/creationix/step <br />
 
 ## License
 

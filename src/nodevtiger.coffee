@@ -218,7 +218,7 @@ class NodeVtigerWS
         return
     
     # Retrieve information of existing record of the module.
-    # id must be in the foorm <moduleid>'x'<recordid>
+    # id must be in the form <moduleid>'x'<recordid>
     doRetrieve: (id, @callback) ->
         @log.debug 'doRetrieve: ' + id
         return @__performCallback(@_lastError, false) if not @__checkLogin()

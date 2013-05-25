@@ -2,6 +2,7 @@
                 
 Description:        Node vtiger webservice client library
 Contributor:        marco.parronchi@tiwee.net
+                    https://github.com/itag
 License:            public domain: http://www.nolicense.org/
 
                     infos in /README.md
@@ -216,7 +217,7 @@ class NodeVtigerWS
             return @__processResponse(e, r, body)
         return
         
-    # Listtypes
+    # Listtypes (itag contribution)
     # module = module name
     doListtypes: (module, @callback) ->
         @log.trace 'doListtypes: ' + module

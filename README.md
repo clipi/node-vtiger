@@ -77,6 +77,6 @@ https://github.com/creationix/step <br />
 
 ## License
 
-Public Domain & copyleft: http://www.nolicense.org<br />
+Public Domain
 <i>The software is provided "as is", without warranty of any kind.</i>
 

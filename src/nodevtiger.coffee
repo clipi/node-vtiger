@@ -215,7 +215,18 @@ class NodeVtigerWS
         request @_wsUrl + params , (e, r, body) =>
             return @__processResponse(e, r, body)
         return
-    
+        
+    # Listtypes
+    # module = module name
+    doListtypes: (module, @callback) ->
+        @log.trace 'doListtypes: ' + module
+        return @__performCallback(@_lastError, false) if not @__checkLogin()
+        params = '?operation=listtypes&sessionName=' + @_wsSessionName + '&elementType=' + module
+        @log.trace @_wsUrl + params
+        request @_wsUrl + params , (e, r, body) =>
+            return @__processResponse(e, r, body)
+        return
+        
     # Retrieve information of existing record of the module.
     # id = <moduleid>'x'<recordid>
     doRetrieve: (id, @callback) ->

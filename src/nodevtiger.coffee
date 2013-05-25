@@ -219,10 +219,10 @@ class NodeVtigerWS
         
     # Listtypes (itag contribution)
     # module = module name
-    doListtypes: (module, @callback) ->
+    doListtypes: (@callback) ->
         @log.trace 'doListtypes: ' + module
         return @__performCallback(@_lastError, false) if not @__checkLogin()
-        params = '?operation=listtypes&sessionName=' + @_wsSessionName + '&elementType=' + module
+        params = '?operation=listtypes&sessionName=' + @_wsSessionName
         @log.trace @_wsUrl + params
         request @_wsUrl + params , (e, r, body) =>
             return @__processResponse(e, r, body)

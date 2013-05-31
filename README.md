@@ -45,6 +45,7 @@ VTiger webservice API: https://wiki.vtiger.com/index.php/Webservices_tutorials<b
     client.doUpdate(valueMap, callback)
     client.doCreate(valueMap, callback)
     client.doSync(modifiedTime, module, callback)
+    client.doListtypes(callback)
 </pre>
 
 Example with Step, the very useful control-flow node library:<br />

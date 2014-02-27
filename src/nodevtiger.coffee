@@ -201,7 +201,7 @@ class NodeVtigerWS
         @log.trace 'doQuery: ' + query
         return @__performCallback(@_lastError, false) if not @__checkLogin()
         query += ";" if query.indexOf(";") is -1
-        params = '?operation=query&sessionName=' + @_wsSessionName + '&query=' + escape(query)
+        params = '?operation=query&sessionName=' + @_wsSessionName + '&query=' + encodeURI(query)
         @log.trace @_wsUrl + params
         request @_wsUrl + params , (e, r, body) =>
             return @__processResponse(e, r, body)

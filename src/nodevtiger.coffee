@@ -27,6 +27,7 @@ class NodeVtigerWS
         
         @_default_headers   =
             "Accept":           "application/json"
+gin: request getChallenge -> error:
             "Content-Type":     "application/json"
             "Accept-Charset":   "utf-8"
         
@@ -121,7 +122,7 @@ class NodeVtigerWS
         @log.trace @_wsUrl + params
         request @_wsUrl + params , (e, r, body) =>
             if e
-                @log.error "doLogin: request getChallenge -> error: #{ JSON.stringify(error) }"
+                @log.error "doLogin: request getChallenge -> error: #{ JSON.stringify(e) }"
                 @_lastError = 
                     "error":
                         "code":     "ERROR_ON_REQUEST"

@@ -42,7 +42,7 @@ gin: request getChallenge -> error:
         @log.trace "hasError"
         if resultdata?
             if resultdata.success is false
-                @log.error "erreur result= #{ JSON.stringify(resultdata.error) }"
+                @log.error "error result= #{ JSON.stringify(resultdata.error) }"
                 @_lastError = resultdata.error
                 return true
         else

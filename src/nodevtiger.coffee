@@ -170,7 +170,7 @@ gin: request getChallenge -> error:
             , (e, r, body) =>
                 result = false
                 if e
-                    @log.error "doLogin: login, request -> error: #{ JSON.stringify(error) }"
+                    @log.error "doLogin: login, request -> error: #{ JSON.stringify(e) }"
                     @_lastError = 
                         "error":
                             "code":     "ERROR_ON_REQUEST"
